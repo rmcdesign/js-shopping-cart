@@ -1,0 +1,57 @@
+// typography
+
+@function calculateRem($size) {
+  $remSize: $size / 16px;
+  @return #{$remSize}rem;
+}
+
+@mixin fontSize($size) {
+  font-size: $size; //Fallback in px
+  font-size: calculateRem($size);
+}
+
+@mixin bp($breakpoint, $type: 'up') {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @if $type == 'up' {
+      @media (min-width: map-get($breakpoints, $breakpoint ) ) {
+        @content;
+      }
+    }
+    @if $type == 'down' {
+      @media (max-width: (map-get($breakpoints, $breakpoint ))-1 ) {
+        @content;
+      }
+    }
+    @if $type == 'only' and $breakpoint != 'xl' {
+      @media (min-width: map-get($breakpoints, $breakpoint) ) and ( max-width: map-get($breakpoints-max, $breakpoint) ) {
+        @content;
+      }
+    }
+    @if $type == 'only' and $breakpoint == 'xl' {
+      @media (min-width: map-get($breakpoints, $breakpoint ) ) {
+        @content;
+      }
+      @warn "xl only not available as there is no max value defaulting to xl up"
+    }
+  }
+  @else {
+    @warn "Unfortunately, no value could be retrieved from `#{$breakpoint}`. "
+      + "Please make sure it is defined in `$breakpoints` map.";
+  }
+}
+
+@mixin calc-grid-column($index, $class) {
+  .col-#{$class}-#{$index} {
+    width: percentage(($index / $grid-columns));
+  }
+}
+
+@mixin loop-grid-columns($columns, $class) {
+  @for $i from 1 through $columns {
+    @include calc-grid-column($i, $class);
+  }
+}
+
+@mixin make-grid($class) {
+  @include loop-grid-columns($grid-columns, $class);
+}

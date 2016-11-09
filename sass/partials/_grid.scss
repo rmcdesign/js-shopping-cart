@@ -1,0 +1,126 @@
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+@include make-grid(xs);
+
+@include bp(sm) {
+  @include make-grid(sm);
+}
+
+@include bp(md) {
+  @include make-grid(md);
+}
+
+@include bp(lg) {
+  @include make-grid(lg);
+}
+
+@include bp(xl) {
+  @include make-grid(xl);
+}
+
+// layout
+
+.wrap {
+  @extend %clearfix;
+  margin-left: auto;
+  margin-right: auto;
+  @include bp(sm) {
+    max-width: map-get($breakpoints, sm);
+  }
+  @include bp(md) {
+    max-width: map-get($breakpoints, md);
+  }
+  @include bp(lg) {
+    max-width: map-get($breakpoints, lg);
+  }
+  @include bp(xl) {
+    max-width: 1140px;
+  }
+}
+
+.container {
+  @extend %clearfix;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.row {
+  @extend %clearfix;
+  margin-left: -(map-get($gutter, xs)/2);
+  margin-right: -(map-get($gutter, xs)/2);
+  @include bp(sm) {
+    margin-left: -(map-get($gutter, sm)/2);
+    margin-right: -(map-get($gutter, sm)/2);
+  }
+  @include bp(md) {
+    margin-left: -(map-get($gutter, md)/2);
+    margin-right: -(map-get($gutter, md)/2);
+  }
+  @include bp(lg) {
+    margin-left: -(map-get($gutter, lg)/2);
+    margin-right: -(map-get($gutter, lg)/2);
+  }
+}
+
+div[class*="col-"] {
+  @extend %clearfix;
+  float: left;
+  position: relative;
+  min-height: 1px;
+}
+
+.wrap,
+.container,
+[class*="col-"] {
+  padding-left: (map-get($gutter, xs)/2);
+  padding-right: (map-get($gutter, xs)/2);
+  @include bp(sm) {
+    padding-left: (map-get($gutter, sm)/2);
+    padding-right: (map-get($gutter, sm)/2);
+  }
+  @include bp(md) {
+    padding-left: (map-get($gutter, md)/2);
+    padding-right: (map-get($gutter, md)/2);
+  }
+  @include bp(lg) {
+    padding-left: (map-get($gutter, lg)/2);
+    padding-right: (map-get($gutter, lg)/2);
+  }
+}
+
+img {
+  border: 0 none;
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+img,
+iframe {
+  max-width: 100%;
+}
+
+.fill-wrap {
+  margin-left: -(map-get($gutter, xs)/2);
+  margin-right: -(map-get($gutter, xs)/2);
+  @include bp(sm) {
+    margin-left: -(map-get($gutter, sm)/2);
+    margin-right: -(map-get($gutter, sm)/2);
+  }
+  @include bp(md) {
+    margin-left: -(map-get($gutter, md)/2);
+    margin-right: -(map-get($gutter, md)/2);
+  }
+  @include bp(lg) {
+    margin-left: -(map-get($gutter, lg)/2);
+    margin-right: -(map-get($gutter, lg)/2);
+  }
+}

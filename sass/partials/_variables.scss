@@ -1,0 +1,29 @@
+$primary: #85393a;
+$secondary: #55667a;
+$light-grey: #f5f5f5;
+$red: #f03f4a;
+$purple: #4e3e7d;
+$border-color: #ddd;
+
+
+$grid-columns: 12;
+
+$gutter: (
+  xs: 12px,
+  sm: 18px,
+  md: 24px,
+  lg: 30px,
+  xl: 30px
+);
+
+$breakpoints: (
+  sm: 544px,
+  md: 768px,
+  lg: 992px,
+  xl: 1366px
+);
+$breakpoints-max: (
+  sm: (map-get($breakpoints, md)-1),
+  md: (map-get($breakpoints, lg)-1),
+  lg: (map-get($breakpoints, xl)-1)
+);

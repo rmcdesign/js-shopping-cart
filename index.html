@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Shopping product page example</title>
+    <link rel="stylesheet" href="css/main.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+
+
+<div id="site-header" class="wrap">
+    <div class="fill-wrap">
+        <img class="promo-img" src="img/banner.jpg" alt="Promotional Banner" width="1140" height="331">
+    </div>
+</div>
+
+
+<div class="wrap">
+
+    <div class="product-list-header fill-wrap">
+        <div class="container">
+            <ol class="breadcrumbs">
+                <li>Home</li>
+                <li class="toggle-cart">All Products</li>
+            </ol>
+            <button class="btn checkout toggle-cart"><span class="fa fa-shopping-cart"></span> <span class="basket-count">Basket empty</span></button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="product-list">
+            <script id="product-list-template" type="text/x-handlebars-template">
+                <div class="row">
+                    {{#products}}
+                    <div id="{{id}}" class="product col-xs-6 col-md-4 col-lg-3 {{#unless quantity}}sold-out{{/unless}}">
+                        <img src="https://placeholdit.imgix.net/~text?txtsize=33&txt=400%C3%97400&w=400&h=400" alt="dummy image">
+                        <div class="product-name">{{name}}</div>
+                        <div class="product-category">{{category}}</div>
+                        <div class="product-price">£{{price}}</div>
+
+
+                        <button class="btn btn-primary add-to-cart" data-id="{{id}}" {{#unless quantity}}disabled{{/unless}}>
+                        {{#if quantity}}Add to cart <span class="fa fa-cart-plus"></span>{{/if}}
+                        {{#unless quantity}}<span class="product-quantity">{{quantity}} left in stock</span>{{/unless}}</button>
+                    </div>
+                    {{/products}}
+                </div>
+            </script>
+        </div>
+        <div id="shopping-basket">
+            <div id="shopping-cart-list">
+                <h2>Your shopping car is empty</h2>
+                <script id="cart-list-template" type="text/x-handlebars-template">
+                    <h2>Your shopping cart</h2>
+                    {{#items}}
+                    <div class="cart-item">
+                        <img class="cart-image" src="https://placeholdit.imgix.net/~text?txtsize=33&txt=200%C3%97200&w=200&h=200" alt="dummy image">
+                        <div class="cart-name">{{name}}</div>
+                        <div class="cart-category product-category">{{category}}</div>
+                        £<span class="cart-price">{{price}}</span>
+                        <span class="product-quantity"> X <span class="cart-quantity">{{count}}</span></span>
+                        <button class="btn delete" data-id="{{id}}">Delete</button>
+                    </div>
+                    {{/items}}
+                </script>
+            </div>
+            <div id="shopping-cart-total">
+
+                <div class="voucher-input">
+                    <label for="voucher">Add discount code: <input type="text" id="voucher"></label> <button class="btn apply-voucher">Apply discount code</button>
+                </div>
+
+                <div class="discount-status"></div>
+                <hr>
+                <div class="show-discount"></div>
+                <strong class="cart-total">£0.00</strong>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="site-footer" class="wrap">
+    <div class="fill-wrap">
+        <div class="footer-content">
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consequuntur optio perferendis quos tempore totam! Alias animi consectetur, corporis doloremque dolorum possimus quae. Deleniti et eum incidunt ipsa minus quisquam tempore?</p>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="js/handlebars-v4.0.5.js"></script>
+
+
+
+
+<script src="js/scripts.min.js"></script>
+
+</body>
+</html>
