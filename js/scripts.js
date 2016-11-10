@@ -1,16 +1,14 @@
 ;(function(window, $) {
 
+    "use strict";
+
+    // TODO: Precompile templates
     var cart_list_source   = $("#cart-list-template").html();
     var cart_list_template = Handlebars.compile(cart_list_source);
 
     var products_source   = $("#product-list-template").html();
     var products_template = Handlebars.compile(products_source);
 
-    var footwearItems = 0;
-
-    var cart = {
-        total: 0
-    };
     var data = {
         "products": [
             {
@@ -120,25 +118,68 @@
         ]
     };
 
+    // using this to get original stock values - prob should save them better
     var data_backup = $.extend(true,{},data);
 
     $("#product-list").html(products_template(data));
 
+    // stick everything in an object to have less global variables
+    var app = {};
 
-    function addItemToCart(id) {
-        var item = data.products[id];
-        var inCart = false;
+    app.init = function() {
+        app.setVariables();
+        app.bindEvents();
+    };
 
-        if(typeof cart.items === 'undefined') {
-            cart.items = [];
+    app.setVariables = function() {
+        app.$doc = $(document);
+        app.$productList = $('#product-list');
+        app.$shoppingBasket = $('#shopping-basket');
+        app.footwearItems = 0;
+        app.cart = { total: 0 };
+    };
+
+    app.bindEvents = function() {
+        app.$doc.on("click", ".add-to-cart", app.addItemToCart);
+        app.$doc.on("click", ".delete", app.removeItemFromCartList);
+        app.$doc.on("click", ".toggle-cart", app.toggleCart);
+        app.$doc.on("click", ".apply-voucher", app.validateVoucher);
+        app.$doc.on("keyup", "#voucher", function() {
+            if(event.keyCode == 13){
+                app.validateVoucher();
+            }
+        });
+    };
+
+    app.toggleCart = function() {
+        app.$productList.slideToggle("fast");
+        app.$shoppingBasket.slideToggle("fast");
+    };
+
+    app.removeItemFromCartList = function() {
+        var id = $(this).data('id'),
+            $item = $(this).parent('.cart-item');
+        $item.slideUp(400, function () {
+            $item.remove();
+            app.deleteItemFromCart(id);
+        });
+    };
+
+    app.addItemToCart = function() {
+        var id = $(this).data('id'),
+            item = data.products[id],
+            inCart = false;
+
+        if(typeof app.cart.items === 'undefined') {
+            app.cart.items = [];
         } else {
-            for (i = 0; i < cart.items.length; i++) {
-                if(typeof cart.items[i] != 'undefined' && cart.items[i].id === id) {
+            for (var i = 0; i < app.cart.items.length; i++) {
+                if(typeof app.cart.items[i] != 'undefined' && app.cart.items[i].id === id) {
                     inCart = true;
                     if(data.products[id].quantity > 0) {
-                        cart.items[i].count++;
+                        app.cart.items[i].count++;
                         data.products[id].quantity--;
-                        updateTotal();
+                        app.updateTotal();
                     } else {
                         console.log('no stock left');
                     }
@@ -148,57 +189,48 @@
 
         if(!inCart) {
             item.count = 1;
-            cart.items.push(item);
+            app.cart.items.push(item);
             data.products[id].quantity--;
-            updateTotal();
+            app.updateTotal();
         }
 
-        if( item.category.indexOf('Footwear') ) {
-            footwearItems++;
+        // TODO: when deleting need to recalculate footwear count
+        if(item.category.indexOf('Footwear') ) {
+            app.footwearItems++;
         }
 
-    }
+    };
 
-    function subtractItemFromCart(id) {
-        for(var i = 0; i < cart.items.length; i++) {
-            if (cart.items[i].id === id) {
-                if(cart.items[i].count > 0) {
-                    cart.items[i].count--;
-                    data.products[i].quantity++;
-                    updateTotal();
-                } else {
-                    console.log('nothing to delete');
-                }
-            }
-        }
-    }
-
-    function deleteItemFromCart(id) {
+    app.deleteItemFromCart = function(id) {
         data.products[id].quantity = data_backup.products[id].quantity;
-        for(var i = 0; i < cart.items.length; i++) {
-            if(cart.items[i].id === id) {
-                cart.items.splice(i, 1);
+        for(var i = 0; i < app.cart.items.length; i++) {
+            if(app.cart.items[i].id === id) {
+                app.cart.items.splice(i, 1);
             }
         }
-        updateTotal();
-    }
+        app.updateTotal();
+    };
 
-    function updateTotal() {
+    app.updateTotal = function() {
 
-        updateCartList();
-        updateList();
-        var basketCount = 0;
-        var subTotal = 0;
-        var $btnCount = $('.basket-count');
-        var $checkoutBtn = $('.checkout');
+        app.updateCartList();
+        app.updateList();
+
+        var basketCount = 0,
+            subTotal = 0,
+            $btnCount = $('.basket-count');
+
         $(".cart-item").each(function () {
-            var self = $(this);
-            var q = parseFloat(self.find('.cart-quantity').text());
-            var p = parseFloat(self.find('.cart-price').text()).toFixed(2);
+
+            var self = $(this),
+                q = parseFloat(self.find('.cart-quantity').text()),
+                p = parseFloat(self.find('.cart-price').text()).toFixed(2);
+
             basketCount += q;
             subTotal += (p * q);
         });
-        cart.total = subTotal.toFixed(2);
+
+        app.cart.total = subTotal.toFixed(2);
 
         if(basketCount === 1) {
             $btnCount.html(basketCount + ' item');
@@ -208,106 +240,73 @@
             $btnCount.html('Basket empty');
         }
 
-        $('.cart-total').html('£' + cart.total);
+        $('.cart-total').html('£' + app.cart.total);
 
-    }
+    };
 
-    function updateCartList() {
-        $("#shopping-cart-list").html(cart_list_template(cart));
-    }
+    app.updateCartList = function() {
+        $("#shopping-cart-list").html(cart_list_template(app.cart));
+    };
 
-    function updateList() {
+    app.updateList = function() {
         $("#product-list").html(products_template(data));
-    }
+    };
 
-    function applyDiscount(amount) {
-        var newAmount = cart.total - amount;
-        cart.total = newAmount.toFixed(2);
+    app.applyDiscount = function(amount) {
+        var newAmount = app.cart.total - amount;
+        app.cart.total = newAmount.toFixed(2);
         $('.show-discount').html('Discount applied: -£' + amount.toFixed(2) );
-        $('.cart-total').html('£' + cart.total);
-    }
+        $('.cart-total').html('£' + app.cart.total);
+    };
 
-    function voucherStatus(valid) {
+    app.voucherStatus = function(valid) {
+
+        var $discountStatus = $('.discount-status');
 
         if(valid) {
-            $('.discount-status').addClass('voucher-valid').fadeIn().html('Your voucher as been successfully applied');
+            $discountStatus.addClass('voucher-valid').fadeIn().html('Your voucher as been successfully applied');
         } else {
-            $('.discount-status').fadeIn().html('Sorry the voucher you entered was invalid');
+            $discountStatus.fadeIn().html('Sorry the voucher you entered was invalid');
         }
 
         setTimeout(function(){
-            $('.discount-status').slideUp();
+            $discountStatus.slideUp();
         }, 3000);
 
-    }
+    };
 
-    $(document).on("click", ".add-to-cart", function() {
-        var id = $(this).data('id');
-        addItemToCart(id);
-    });
+    // TODO: handle multiple vouchers and remove when they become invalid
 
-    $(document).on("click", ".minus-item", function() {
-        var id = $(this).data('id');
-        subtractItemFromCart(id);
-    });
+    app.validateVoucher = function() {
 
-    $(document).on("click", ".delete", function() {
-        var id = $(this).data('id');
-        var $item = $(this).parent('.cart-item');
-        $item.slideUp(400, function() {
-            $item.remove();
-            deleteItemFromCart(id);
-        });
-    });
-
-    $('.toggle-cart').on('click', function() {
-        var $productList = $('#product-list');
-        var $shoppingBasket = $('#shopping-basket');
-        $productList.slideToggle("fast");
-        $shoppingBasket.slideToggle("fast");
-    });
-
-
-
-    $(document).on("keyup", "#voucher", function() {
-        if(event.keyCode == 13){
-            validateVoucher();
-        }
-    });
-
-    $(document).on("click", ".apply-voucher", validateVoucher);
-
-    function validateVoucher() {
-
-        var $voucher = $('#voucher');
-
-        var code = $voucher.val();
+        var $voucher = $('#voucher'),
+            code = $voucher.val();
 
         $voucher.val('');
         $('.show-discount').html('');
 
         switch(code.toUpperCase()) {
             case 'FIVEOFF':
-                applyDiscount(5);
-                voucherStatus(true);
+                app.applyDiscount(5);
+                app.voucherStatus(true);
                 break;
             case 'BIGSPENDER':
-                applyDiscount(10);
-                voucherStatus(true);
+                app.applyDiscount(10);
+                app.voucherStatus(true);
                 break;
             case 'FOOTWEAR':
-                if(footwearItems > 0) {
-                    applyDiscount(15);
-                    voucherStatus(true);
+                if(app.footwearItems > 0) {
+                    app.applyDiscount(15);
+                    app.voucherStatus(true);
                 }
                 break;
             default:
-                voucherStatus(false);
+                app.voucherStatus(false);
         }
 
+    };
 
-
-    }
+    app.init();
 
 
 })(window, jQuery);
